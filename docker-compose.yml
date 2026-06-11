@@ -1,0 +1,31 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - ollama_net
+    # NOT exposed to public — internal only
+    expose:
+      - "11434"
+
+  nginx:
+    image: ${DOCKER_USERNAME}/ollama-nginx:latest
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - API_SECRET_KEY=${API_SECRET_KEY}
+    depends_on:
+      - ollama
+    networks:
+      - ollama_net
+
+volumes:
+  ollama_data:
+
+networks:
+  ollama_net:
